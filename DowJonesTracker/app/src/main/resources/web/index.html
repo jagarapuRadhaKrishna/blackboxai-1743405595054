@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stock Price Visualization</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .chart-container { width: 800px; height: 400px; margin: 0 auto; }
+    </style>
+</head>
+<body>
+    <h1>Dow Jones Industrial Average</h1>
+    <div class="chart-container">
+        <canvas id="priceChart"></canvas>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('priceChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                datasets: [{
+                    label: 'Stock Price',
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                scales: {
+                    x: { title: { display: true, text: 'Time' } },
+                    y: { title: { display: true, text: 'Price ($)' } }
+                }
+            }
+        });
+
+        function updateChart() {
+            fetch('http://localhost:8000/data')
+                .then(response => response.json())
+                .then(data => {
+                    chart.data.labels = data.map(entry => entry.timestamp);
+                    chart.data.datasets[0].data = data.map(entry => entry.price);
+                    chart.update();
+                });
+        }
+
+        // Update every 5 seconds
+        setInterval(updateChart, 5000);
+        updateChart(); // Initial load
+    </script>
+</body>
+</html>
